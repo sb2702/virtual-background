@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Open Source Virtual Backgrounds</title>
+    <script src="src/index.js"></script>
+</head>
+<body>
+
+<video id="inVideo" muted crossorigin="anonymous"  autoplay></video>
+<video id="outVideo" muted crossorigin="anonymous"  autoplay></video>
+
+
+<script>
+
+    async  function run(){
+
+        const stream = await navigator.mediaDevices.getUserMedia({video:true});
+        const filter = new VirtualBackgroundFilter(stream, {background: 'blur'});
+        const outputStream =  await filter.getOutput();
+
+
+        document.getElementById('inVideo').srcObject = stream;
+        document.getElementById('outVideo').srcObject = outputStream;
+    }
+
+    run();
+
+
+
+</script>
+
+
+</body>
+</html>
