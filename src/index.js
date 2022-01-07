@@ -1,5 +1,5 @@
 
-
+import Pipeline from './pipeline'
 
 class VirtualBackgroundFilter {
 
@@ -9,13 +9,16 @@ class VirtualBackgroundFilter {
         this.input = input;
         this.params = params;
 
+
+        this.pipeline = new Pipeline();
+
     }
 
 
 
     async getOutput(){
 
-        return this.input.clone();
+        return this.pipeline.captureStream();
     }
 
 
