@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Open Source Virtual Backgrounds</title>
-    <script src="src/index.js"></script>
+    <script src="main.js"></script>
 </head>
 <body>
 
@@ -16,7 +16,7 @@
     async  function run(){
 
         const stream = await navigator.mediaDevices.getUserMedia({video:true});
-        const filter = new VirtualBackgroundFilter(stream, {background: 'blur'});
+        const filter = new BackgroundFilter(stream, {background: 'blur'});
         const outputStream =  await filter.getOutput();
 
 
