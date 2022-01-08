@@ -10,6 +10,7 @@
   "author": "Sam Bhattacharyya",
   "license": "MIT",
   "devDependencies": {
+    "binary-loader": "0.0.1",
     "webpack": "^5.65.0",
     "webpack-cli": "^4.9.1"
   }

@@ -3,12 +3,9 @@
 
 class Step {
 
-
-
     constructor(context, params={}) {
         this.gl  = context;
         this.params = params;
-
         this.width = params.width || 640;
         this.height = params.height || 360;
 
@@ -17,7 +14,7 @@ class Step {
 
     setup(){
         this.program = this.createProgram();
-        this.setupOutput();
+        this.outBuffer = this.setupOutput();
     }
 
     setOutput(){

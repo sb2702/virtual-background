@@ -7,15 +7,15 @@ class VirtualBackgroundFilter {
     constructor(input, params) {
 
         this.input = input;
-        this.params = params;
-        const {width, height} = input.getVideoTracks()[0].getSettings();
 
-        this.pipeline = new Pipeline({width, height});
+        const videoTrackSettings = input.getVideoTracks()[0].getSettings();
+        params.width = params.width || videoTrackSettings.width || 640;
+        params.height = params.height || videoTrackSettings.height || 360;
 
+
+        this.pipeline = new Pipeline(params);
 
     }
-
-
 
 
 

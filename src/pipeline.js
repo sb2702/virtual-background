@@ -1,13 +1,15 @@
 
 import ResizeStep from './steps/resizeStep'
+import TFLiteStep  from './steps/tfliteStep'
 
 class Pipeline {
 
     constructor(params) {
-        this.params = params;
 
-        this.width =  params.width || 640;
-        this.height = params.height || 360;
+        params.segmentationWidth = TFLiteStep.segmentationWidth;
+        params.segmentationHeight = TFLiteStep.segmentationHeight;
+
+        this.params = params;
 
         this.initializeCanvas();
 
@@ -17,11 +19,13 @@ class Pipeline {
 
     setup(){
 
+        this.resizeStep = new ResizeStep(this.context, this.params);
 
+        this.resizeStep.setup();
 
-        this.resizeLayer = new ResizeStep(this.context);
+        this.tfliteStep = new TFLiteStep(this.context, this.params);
 
-        this.resizeLayer.setup();
+        this.tfliteStep.setup();
 
     }
 
@@ -32,8 +36,8 @@ class Pipeline {
         const canvas = document.createElement('canvas');
         this.canvas  = canvas;
 
-        canvas.width =this.width;
-        canvas.height = this.height;
+        canvas.width =this.params.width;
+        canvas.height = this.params.height;
 
        // canvas.style.display = "none";
 
@@ -44,9 +48,11 @@ class Pipeline {
     }
 
 
-    run(input){
-        this.resizeLayer.run(input);
-    //    this.context.drawImage(input, 0, 0, this.width, this.height);
+    async run(input){
+        const resized = await this.resizeStep.run(input);
+
+        const tflite = this.tfliteStep.run(resized);
+
     }
 
 
