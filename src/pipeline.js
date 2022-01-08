@@ -3,6 +3,7 @@ import ResizeStep from './steps/resizeStep'
 import TFLiteStep  from './steps/tfliteStep'
 import SegmentationStep from "./steps/segmentationStep";
 import BilateralStep from  './steps/bilteralStep'
+import BackgroundImageStep from "./steps/backgroundImageStep";
 
 class Pipeline {
 
@@ -37,6 +38,10 @@ class Pipeline {
 
         this.bilateralStep.setup();
 
+        this.backgroundImageStep = new BackgroundImageStep(this.context, this.params);
+
+        this.backgroundImageStep.setup();
+
 
     }
 
@@ -68,6 +73,8 @@ class Pipeline {
         this.segmentationStep.run(tflite);
 
         this.bilateralStep.run(this.resizeStep.inputTexture, this.segmentationStep.outTexture);
+
+        this.backgroundImageStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
 
     }
 

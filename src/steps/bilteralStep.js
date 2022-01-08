@@ -136,7 +136,7 @@ class BilteralStep extends Step{
     setOutput(){
         const gl = this.gl;
         gl.viewport(0, 0, this.params.width, this.params.height);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.outBuffer);
     }
 
 
@@ -168,7 +168,7 @@ class BilteralStep extends Step{
         const gl = this.gl;
 
         gl.useProgram(this.program);
-        
+
         this.setInput(inputFrameTexture, segmentationTexture);
         this.setOutput();
 
