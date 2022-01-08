@@ -67,7 +67,6 @@ class SegmentationStep extends Step{
         gl.uniform1i(inputLocation, 1)
         const tfliteOutputMemoryOffset = tflite._getOutputMemoryOffset() / 4
 
-     //   console.log(tflite.HEAPF32.slice(tfliteOutputMemoryOffset, tfliteOutputMemoryOffset+100));
 
         gl.activeTexture(gl.TEXTURE1)
         gl.bindTexture(gl.TEXTURE_2D, this.tensorFlowTexture)

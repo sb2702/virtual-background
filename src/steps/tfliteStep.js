@@ -35,17 +35,6 @@ class TFLiteStep extends Step{
     }
 
 
-    setupOutput() {
-    }
-
-    setInput() {
-
-    }
-
-    setOutput() {
-
-    }
-
     run(inputPixels) {
 
         const tflite = this.tflite;
