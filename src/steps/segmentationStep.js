@@ -29,7 +29,7 @@ class SegmentationStep extends Step{
                   float personExp = exp(segmentation.g - shift);
                   
                   float segOut = personExp / (backgroundExp + personExp);
-                  outColor = vec4(vec3(segOut), 1.0);
+                  outColor = vec4(vec3(0.0), segOut);
                 }
         `;
 
@@ -53,7 +53,7 @@ class SegmentationStep extends Step{
     setOutput(){
         const gl = this.gl;
         gl.viewport(0, 0, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.outBuffer);
     }
 
 

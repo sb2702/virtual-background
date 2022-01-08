@@ -2,6 +2,7 @@
 import ResizeStep from './steps/resizeStep'
 import TFLiteStep  from './steps/tfliteStep'
 import SegmentationStep from "./steps/segmentationStep";
+import BilateralStep from  './steps/bilteralStep'
 
 class Pipeline {
 
@@ -32,6 +33,9 @@ class Pipeline {
 
         this.segmentationStep.setup();
 
+        this.bilateralStep = new BilateralStep(this.context, this.params);
+
+        this.bilateralStep.setup();
 
 
     }
@@ -62,6 +66,8 @@ class Pipeline {
         const tflite = this.tfliteStep.run(resized);
 
         this.segmentationStep.run(tflite);
+
+        this.bilateralStep.run(this.resizeStep.inputTexture, this.segmentationStep.outTexture);
 
     }
 
