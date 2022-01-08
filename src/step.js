@@ -5,19 +5,25 @@ class Step {
 
 
 
-    constructor(context, params) {
+    constructor(context, params={}) {
         this.gl  = context;
         this.params = params;
 
-        console.log("Context");
-        console.log(this.gl);
+        this.width = params.width || 640;
+        this.height = params.height || 360;
+
     }
 
 
     setup(){
-
         this.program = this.createProgram();
+        this.setupOutput();
+    }
 
+    setOutput(){
+        const gl = this.gl;
+        gl.viewport(0, 0, this.width, this.height);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
     getOutputTexture(){
@@ -25,9 +31,23 @@ class Step {
     }
 
 
-    setOutput(outputTexture){
+    run(input){
 
         const gl = this.gl;
+
+        gl.useProgram(this.program);
+
+        this.setInput(input);
+        this.setOutput();
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+    }
+
+    setupOutput(){
+
+        const gl = this.gl;
+
+        const outputTexture = this.getOutputTexture();
 
         const frameBuffer = gl.createFramebuffer()
         gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
