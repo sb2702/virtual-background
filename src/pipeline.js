@@ -4,6 +4,7 @@ import TFLiteStep  from './steps/tfliteStep'
 import SegmentationStep from "./steps/segmentationStep";
 import BilateralStep from  './steps/bilteralStep'
 import BackgroundImageStep from "./steps/backgroundImageStep";
+import BackgroundBlurStep from "./steps/backgroundBlurStep";
 
 class Pipeline {
 
@@ -26,7 +27,9 @@ class Pipeline {
         this.tfliteStep = new TFLiteStep(this.context, this.params);
         this.segmentationStep = new SegmentationStep(this.context, this.params);
         this.bilateralStep = new BilateralStep(this.context, this.params);
+
         this.backgroundImageStep = new BackgroundImageStep(this.context, this.params);
+        this.backgroundBlurStep = new BackgroundBlurStep(this.context, this.params);
 
         // Setup might be asynchronous
         await Promise.all([
@@ -34,7 +37,8 @@ class Pipeline {
             this.tfliteStep.setup(),
             this.segmentationStep.setup(),
             this.bilateralStep.setup(),
-            this.backgroundImageStep.setup()
+            this.backgroundImageStep.setup(),
+            this.backgroundBlurStep.setup()
         ])
 
 
@@ -69,7 +73,11 @@ class Pipeline {
 
         this.bilateralStep.run(this.resizeStep.inputTexture, this.segmentationStep.outTexture);
 
-        this.backgroundImageStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
+        if(this.params.background === 'blur') {
+            this.backgroundBlurStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
+        } else {
+            this.backgroundImageStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
+        }
 
     }
 

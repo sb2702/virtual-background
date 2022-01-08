@@ -1,7 +1,7 @@
 import Step from '../step'
 import TFLiteStep from "./tfliteStep";
 
-class BackgroundImageStep extends Step{
+class BackgroundBlurStep extends Step{
 
     constructor(context, params) {
         super(context, params);
@@ -52,7 +52,7 @@ class BackgroundImageStep extends Step{
         
             void main() {
               vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
-              vec3 backgroundColor = texture(u_background, v_texCoord).rgb;
+              vec3 backgroundColor = vec3(0.0);
               float personMask = texture(u_personMask, v_texCoord).a;
          
               personMask = smoothstep(u_coverage.x, u_coverage.y, personMask);
@@ -93,81 +93,13 @@ class BackgroundImageStep extends Step{
         gl.uniform2f(coverageLocation, 0, 1);
 
 
-        this.backgroundTexture = this.createBackgroundTexture();
 
         this.program = program;
 
-        if(this.params.background !== 'blur'){
-
-            const backgroundImage = this.params.background;
-
-            if(!backgroundImage.complete) await new Promise((resolve)=>  backgroundImage.onload = resolve);
-
-            this.setBackgroundImage(backgroundImage);
-
-        }
-
 
     }
 
-    createBackgroundTexture(){
 
-        const gl = this.gl;
-
-        const texture = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-
-        // Set up texture so we can render any size image and so we are
-        // working with pixels.
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-
-        return texture;
-    }
-
-    setBackgroundImage(backgroundImage){
-
-
-        const program = this.program;
-
-        const frameWidth = this.params.width;
-        const frameHeight = this.params.height;
-
-        const outputRatio = frameWidth / frameHeight;
-
-        const gl = this.gl;
-
-        gl.useProgram(this.program);
-        gl.bindTexture(gl.TEXTURE_2D, this.backgroundTexture);
-
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, backgroundImage);
-
-        let xOffset = 0;
-        let yOffset = 0;
-        let backgroundWidth = backgroundImage.naturalWidth;
-        let backgroundHeight = backgroundImage.naturalHeight;
-        const backgroundRatio = backgroundWidth / backgroundHeight;
-        if (backgroundRatio < outputRatio) {
-            backgroundHeight = backgroundWidth / outputRatio;
-            yOffset = (backgroundImage.naturalHeight - backgroundHeight) / 2;
-        } else {
-            backgroundWidth = backgroundHeight * outputRatio;
-            xOffset = (backgroundImage.naturalWidth - backgroundWidth) / 2;
-        }
-
-        const xScale = backgroundWidth / backgroundImage.naturalWidth;
-        const yScale = backgroundHeight / backgroundImage.naturalHeight;
-        xOffset /= backgroundImage.naturalWidth;
-        yOffset /= backgroundImage.naturalHeight;
-
-        const backgroundScaleLocation = gl.getUniformLocation(program, 'u_backgroundScale');
-        const backgroundOffsetLocation = gl.getUniformLocation(program, 'u_backgroundOffset');
-
-        gl.uniform2f(backgroundScaleLocation, xScale, yScale);
-        gl.uniform2f(backgroundOffsetLocation, xOffset, yOffset);
-    }
 
 
 
@@ -189,15 +121,6 @@ class BackgroundImageStep extends Step{
 
         gl.activeTexture(gl.TEXTURE1)
         gl.bindTexture(gl.TEXTURE_2D, personMaskTexture);
-
-        if(this.backgroundTexture){
-
-            gl.activeTexture(gl.TEXTURE2)
-            gl.bindTexture(gl.TEXTURE_2D, this.backgroundTexture)
-            // TODO Handle correctly the background not loaded yet
-            gl.uniform1i(this.backgroundLocation, 2)
-
-        }
 
     }
 
@@ -226,4 +149,4 @@ class BackgroundImageStep extends Step{
 
 }
 
-export default BackgroundImageStep;
+export default BackgroundBlurStep;
