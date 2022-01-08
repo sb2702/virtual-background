@@ -1,5 +1,5 @@
 
-
+import ResizeStep from './steps/resizeStep'
 
 class Pipeline {
 
@@ -10,6 +10,19 @@ class Pipeline {
         this.height = params.height || 360;
 
         this.initializeCanvas();
+
+        this.setup();
+    }
+
+
+    setup(){
+
+
+
+        this.resizeLayer = new ResizeStep(this.context);
+
+        this.resizeLayer.setup();
+
     }
 
 
@@ -22,17 +35,18 @@ class Pipeline {
         canvas.width =this.width;
         canvas.height = this.height;
 
-        canvas.style.display = "none";
+       // canvas.style.display = "none";
 
         document.body.appendChild(canvas);
 
-        this.context = canvas.getContext('2d');
+        this.context = canvas.getContext('webgl2');
 
     }
 
 
     run(input){
-        this.context.drawImage(input, 0, 0, this.width, this.height);
+        this.resizeLayer.run(input);
+    //    this.context.drawImage(input, 0, 0, this.width, this.height);
     }
 
 
