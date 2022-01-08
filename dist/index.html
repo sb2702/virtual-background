@@ -10,13 +10,14 @@
 <video id="inVideo" muted crossorigin="anonymous"  autoplay></video>
 <video id="outVideo" muted crossorigin="anonymous"  autoplay></video>
 
+<img src="https://i.imgur.com/YWgPhxW.jpeg" crossorigin="anonymous" id="background" style="display: none;">
 
 <script>
 
     async  function run(){
 
         const stream = await navigator.mediaDevices.getUserMedia({video:true});
-        const filter = new BackgroundFilter(stream, {background: 'blur'});
+        const filter = new BackgroundFilter(stream, {background: document.getElementById('background')});
         const outputStream =  await filter.getOutput();
 
 
