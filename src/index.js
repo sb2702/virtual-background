@@ -1,21 +1,47 @@
-
-import Pipeline from './pipeline'
+import VirtualBackgroundWorker from "worker-loader!./offscreen.worker.js";
 
 class VirtualBackgroundFilter {
 
 
-    constructor(input, params) {
+    async constructor(input, params) {
 
         this.input = input;
 
-        const videoTrackSettings = input.getVideoTracks()[0].getSettings();
-        params.width = params.width || videoTrackSettings.width || 640;
-        params.height = params.height || videoTrackSettings.height || 360;
+        const renderSize = this.getVideoDimensions(input);
 
-        this.pipeline = new Pipeline(params);
+        this.worker = this.createWorker(params, renderSize);
+        this.renderCanvas = this.createCanvas(renderSize);
+        this.renderContext = this.renderCanvas.getContext('bitmaprenderer');
 
     }
 
+
+    async createWorker(params, size) {
+
+        const worker = new VirtualBackgroundWorker();
+        const offScreenCanvas = this.createCanvas(size).transferControlToOffscreen();
+
+        const background = await createImageBitmap(params.background);
+
+        worker.postMessage({msg: 'init', offScreenCanvas, background, width: size.width, height: size.height}, [offScreenCanvas]);
+
+    }
+
+
+    
+    
+    createCanvas(size){
+
+        const newCanvas = document.createElement('canvas');
+        newCanvas.height = size.height;
+        newCanvas.width = size.width;
+        
+        newCanvas.style.display = "none";
+        
+        document.body.appendChild(newCanvas);
+
+        return newCanvas
+    }
 
 
     initRenderLoop(){
@@ -27,18 +53,33 @@ class VirtualBackgroundFilter {
 
         video.style.display = "none";
 
-        const pipeline =  this.pipeline;
+        const ctx = this.renderContext;
 
-        function renderLoop(){
+        const render = this.render;
 
-            video.requestVideoFrameCallback(function () {
-                pipeline.run(video);
-                renderLoop();
-            });
-        }
 
-        renderLoop();
+        this.worker.addEventListener('message', function (e){
 
+            switch (e.data.msg){
+
+                case "rendered":
+                    ctx.transferFromImageBitmap(e.data.bitmap);
+                    e.data.bitmap.close();
+                    render(video);
+                    break;
+
+
+            }
+
+        });
+
+    }
+
+    async render(source){
+
+        const bitmap = await createImageBitmap(source);
+        this.worker.postMessage({msg: 'render',bitmap}, [bitmap]);
+        bitmap.close();
 
     }
 
@@ -46,15 +87,26 @@ class VirtualBackgroundFilter {
 
     async getOutput(){
 
-        await this.pipeline.initialized;
-
         this.initRenderLoop();
 
-        return this.pipeline.captureStream();
+        return this.renderCanvas.captureStream();
     }
 
 
 
+    getVideoDimensions(input){
+        let width = 640;
+        let height = 360;
+
+        if(input.getVideoTracks().length >0){
+            const videoTrackSettings = input.getVideoTracks()[0].getSettings();
+
+            width = videoTrackSettings.width;
+            height = videoTrackSettings.height;
+        }
+
+        return {width, height}
+    }
 
 
 }

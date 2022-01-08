@@ -15,7 +15,7 @@ class Pipeline {
 
         this.params = params;
 
-        this.initializeCanvas();
+        this.initializeCanvas(params.canvas);
 
         this.initialized = this.setup();
     }
@@ -45,19 +45,11 @@ class Pipeline {
     }
 
 
-    initializeCanvas(){
+    initializeCanvas(canvas){
 
-
-        const canvas = document.createElement('canvas');
         this.canvas  = canvas;
 
-        canvas.width =this.params.width;
-        canvas.height = this.params.height;
         canvas.style.background = "black";
-
-        canvas.style.display = "none";
-
-        document.body.appendChild(canvas);
 
         this.context = canvas.getContext('webgl2');
 
@@ -78,6 +70,8 @@ class Pipeline {
         } else {
             this.backgroundImageStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
         }
+
+        return this.canvas.transferToImageBitmap();
 
     }
 
