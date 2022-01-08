@@ -334,7 +334,7 @@ var createTFLiteSIMDModule = (function () {
             function getBinaryPromise() {
                 if (!wasmBinary && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER)) {
                     if (typeof fetch === "function" && !isFileURI(wasmBinaryFile)) {
-                        
+
                         return  new Promise(function (resolve){
 
                             const wasmArrayBuffer = new Uint8Array(wasmBinaryData.length);
