@@ -97,9 +97,11 @@ class BackgroundImageStep extends Step{
 
         this.program = program;
 
+        const backgroundImage = this.params.background;
 
+        if(!backgroundImage.complete) await new Promise((resolve)=>  backgroundImage.onload = resolve);
 
-        this.setBackgroundImage(this.params.background);
+        this.setBackgroundImage(backgroundImage);
 
     }
 
