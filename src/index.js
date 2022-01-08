@@ -3,7 +3,7 @@ import VirtualBackgroundWorker from "worker-loader!./offscreen.worker.js";
 class VirtualBackgroundFilter {
 
 
-    async constructor(input, params) {
+    constructor(input, params) {
 
         this.input = input;
 
