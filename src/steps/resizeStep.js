@@ -61,7 +61,6 @@ class ResizeStep extends Step{
     getInputTexture(){
 
         const gl = this.gl;
-        console.log(gl);
         const inputFrameTexture = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, inputFrameTexture);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
