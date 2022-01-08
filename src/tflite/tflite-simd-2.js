@@ -347,7 +347,8 @@ var createTFLiteSIMDModule = (function () {
 
                             resolve(wasmArrayBuffer);
                         });
-                        
+
+
                     } else {
                         if (readAsync) {
                             return new Promise(function (resolve, reject) {
@@ -391,22 +392,9 @@ var createTFLiteSIMDModule = (function () {
                 }
 
                 function instantiateAsync() {
-                    if (!wasmBinary && typeof WebAssembly.instantiateStreaming === "function" && !isDataURI(wasmBinaryFile) && !isFileURI(wasmBinaryFile) && typeof fetch === "function") {
 
-                        console.log("Getting array buffer Array Buffer");
-                        return fetch(wasmBinaryFile, {credentials: "same-origin"}).then(function (response) {
+                    return instantiateArrayBuffer(receiveInstantiatedSource)
 
-
-                            var result = WebAssembly.instantiateStreaming(response, info);
-                            return result.then(receiveInstantiatedSource, function (reason) {
-                                err("wasm streaming compile failed: " + reason);
-                                err("falling back to ArrayBuffer instantiation");
-                                return instantiateArrayBuffer(receiveInstantiatedSource)
-                            })
-                        })
-                    } else {
-                        return instantiateArrayBuffer(receiveInstantiatedSource)
-                    }
                 }
 
                 if (Module["instantiateWasm"]) {
