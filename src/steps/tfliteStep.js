@@ -1,5 +1,5 @@
 import Step from '../step'
-import createTFLiteSIMDModule from  '../tflite/tflite-simd.js'
+import createTFLiteSIMDModule from  '../tflite/tflite-simd-2.js'
 import createTFLiteModule from '../tflite/tflite.js'
 const model =  require('binary-loader!../tflite/segm_lite_v681.tflite');
 
