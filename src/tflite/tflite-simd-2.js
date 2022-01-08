@@ -336,23 +336,18 @@ var createTFLiteSIMDModule = (function () {
                     if (typeof fetch === "function" && !isFileURI(wasmBinaryFile)) {
 
                         console.log("Getting here #2");
-                        return fetch(wasmBinaryFile, {credentials: "same-origin"}).then(function (response) {
 
-                        /*
-                            if (!response["ok"]) {
-                                throw"failed to load wasm binary file at '" + wasmBinaryFile + "'"
-                            }
-*/
+
+                        return  new Promise(function (resolve){
 
                             const wasmArrayBuffer = new Uint8Array(wasmBinaryData.length);
                             for (let i = 0; i < wasmBinaryData.length; i++) {
                                 wasmArrayBuffer[i] = wasmBinaryData.charCodeAt(i);
                             }
 
-                            return wasmArrayBuffer;
-                        }).catch(function () {
-                            return getBinary(wasmBinaryFile)
-                        })
+                            resolve(wasmArrayBuffer);
+                        });
+                        
                     } else {
                         if (readAsync) {
                             return new Promise(function (resolve, reject) {
