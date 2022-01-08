@@ -17,7 +17,7 @@
     async  function run(){
 
         const stream = await navigator.mediaDevices.getUserMedia({video:true});
-        const filter = new BackgroundFilter(stream, {background: 'blur'});
+        const filter = new BackgroundFilter(stream, {background: document.getElementById('background')});
         const outputStream =  await filter.getOutput();
 
 

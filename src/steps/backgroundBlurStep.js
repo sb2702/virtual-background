@@ -52,7 +52,7 @@ class BackgroundBlurStep extends Step{
         
             void main() {
               vec3 frameColor = texture(u_inputFrame, v_texCoord).rgb;
-              vec3 backgroundColor = vec3(0.0);
+              vec3 backgroundColor = texture(u_background, v_texCoord).rgb;
               float personMask = texture(u_personMask, v_texCoord).a;
          
               personMask = smoothstep(u_coverage.x, u_coverage.y, personMask);
