@@ -18,33 +18,18 @@ class TFLiteStep extends Step{
     async setup(){
 
         const tflite = await createTFLiteSIMDModule();
-/*
+
         const modelArrayBuffer = new Uint8Array(model.length);
         for (let i = 0; i < model.length; i++) {
             modelArrayBuffer[i] = model.charCodeAt(i);
         }
 
         const modelBufferOffset = tflite._getModelBufferMemoryOffset();
-*/
 
-        const url = './tflite/segm_lite_v681.tflite';
-
-        const modelResponse = await fetch( url);
-
-        const model = await modelResponse.arrayBuffer();
-
-
-        const modelBufferOffset = tflite._getModelBufferMemoryOffset();
-
-        tflite.HEAPU8.set(new Uint8Array(model), modelBufferOffset)
-
-        tflite._loadModel(model.byteLength);
-
-/*
         tflite.HEAPU8.set(modelArrayBuffer, modelBufferOffset);
 
         tflite._loadModel(modelArrayBuffer.byteLength);
-*/
+
         this.tflite = tflite;
 
     }
