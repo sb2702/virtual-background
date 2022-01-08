@@ -12,11 +12,9 @@ class VirtualBackgroundFilter {
         params.width = params.width || videoTrackSettings.width || 640;
         params.height = params.height || videoTrackSettings.height || 360;
 
-
         this.pipeline = new Pipeline(params);
 
     }
-
 
 
 
@@ -47,6 +45,8 @@ class VirtualBackgroundFilter {
 
 
     async getOutput(){
+
+        await this.pipeline.initialized;
 
         this.initRenderLoop();
 

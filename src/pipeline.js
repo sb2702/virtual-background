@@ -16,31 +16,26 @@ class Pipeline {
 
         this.initializeCanvas();
 
-        this.setup();
+        this.initialized = this.setup();
     }
 
 
-    setup(){
+    async setup(){
 
         this.resizeStep = new ResizeStep(this.context, this.params);
-
-        this.resizeStep.setup();
-
         this.tfliteStep = new TFLiteStep(this.context, this.params);
-
-        this.tfliteStep.setup();
-
         this.segmentationStep = new SegmentationStep(this.context, this.params);
-
-        this.segmentationStep.setup();
-
         this.bilateralStep = new BilateralStep(this.context, this.params);
-
-        this.bilateralStep.setup();
-
         this.backgroundImageStep = new BackgroundImageStep(this.context, this.params);
 
-        this.backgroundImageStep.setup();
+        // Setup might be asynchronous
+        await Promise.all([
+            this.resizeStep.setup(),
+            this.tfliteStep.setup(),
+            this.segmentationStep.setup(),
+            this.bilateralStep.setup(),
+            this.backgroundImageStep.setup()
+        ])
 
 
     }
@@ -56,7 +51,7 @@ class Pipeline {
         canvas.height = this.params.height;
         canvas.style.background = "black";
 
-       // canvas.style.display = "none";
+        canvas.style.display = "none";
 
         document.body.appendChild(canvas);
 
