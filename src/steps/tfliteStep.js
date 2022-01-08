@@ -18,23 +18,48 @@ class TFLiteStep extends Step{
     async setup(){
 
         const tflite = await createTFLiteSIMDModule();
-
+/*
         const modelArrayBuffer = new Uint8Array(model.length);
         for (let i = 0; i < model.length; i++) {
             modelArrayBuffer[i] = model.charCodeAt(i);
         }
 
         const modelBufferOffset = tflite._getModelBufferMemoryOffset();
+*/
+
+        const url = './tflite/segm_lite_v681.tflite';
+
+        const modelResponse = await fetch( url);
+
+        const model = await modelResponse.arrayBuffer();
 
 
+        const modelBufferOffset = tflite._getModelBufferMemoryOffset();
+
+        tflite.HEAPU8.set(new Uint8Array(model), modelBufferOffset)
+
+        tflite._loadModel(model.byteLength);
+
+/*
         tflite.HEAPU8.set(modelArrayBuffer, modelBufferOffset);
 
         tflite._loadModel(modelArrayBuffer.byteLength);
-
+*/
         this.tflite = tflite;
 
     }
 
+
+    setupOutput() {
+    }
+
+    setInput() {
+
+    }
+
+    setOutput() {
+
+    }
 
     run(inputPixels) {
 
@@ -42,7 +67,7 @@ class TFLiteStep extends Step{
 
         const tfliteInputMemoryOffset = tflite._getInputMemoryOffset() / 4;
 
-        for (let i = 0; i < 160*96; i++) {
+        for (let i = 0; i < TFLiteStep.segmentationWidth*TFLiteStep.segmentationHeight; i++) {
             const outputIndex = i * 4;
             const tfliteIndex = tfliteInputMemoryOffset + i * 3;
             tflite.HEAPF32[tfliteIndex] = inputPixels[outputIndex] / 255

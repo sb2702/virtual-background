@@ -1,6 +1,7 @@
 
 import ResizeStep from './steps/resizeStep'
 import TFLiteStep  from './steps/tfliteStep'
+import SegmentationStep from "./steps/segmentationStep";
 
 class Pipeline {
 
@@ -27,6 +28,12 @@ class Pipeline {
 
         this.tfliteStep.setup();
 
+        this.segmentationStep = new SegmentationStep(this.context, this.params);
+
+        this.segmentationStep.setup();
+
+
+
     }
 
 
@@ -38,6 +45,7 @@ class Pipeline {
 
         canvas.width =this.params.width;
         canvas.height = this.params.height;
+        canvas.style.background = "black";
 
        // canvas.style.display = "none";
 
@@ -51,7 +59,16 @@ class Pipeline {
     async run(input){
         const resized = await this.resizeStep.run(input);
 
+
+/*
+        for (let i =0; i < resized.length; i++){
+           /// resized[i] = 0;
+        }
+*/
+
         const tflite = this.tfliteStep.run(resized);
+
+        this.segmentationStep.run(tflite);
 
     }
 

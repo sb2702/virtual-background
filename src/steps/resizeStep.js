@@ -22,6 +22,38 @@ class ResizeStep extends Step{
 
     }
 
+    setupOutput(){
+
+        const gl = this.gl;
+
+        const outputTexture = this.getOutputTexture();
+
+        const frameBuffer = gl.createFramebuffer()
+        gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer)
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, outputTexture, 0);
+
+        return frameBuffer;
+    }
+
+
+    getOutputTexture(){
+
+        const gl = this.gl;
+
+     //   const texture = this.createTexture(gl.RGBA8, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
+
+        const texture = gl.createTexture()
+        gl.bindTexture(gl.TEXTURE_2D, texture)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+        gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
+
+
+        return texture;
+        // return this.createTexture(this.gl.RGBA, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
+    }
 
     setOutput(){
         const gl = this.gl;
@@ -66,10 +98,14 @@ class ResizeStep extends Step{
         this.setInput(input);
         this.setOutput();
 
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+
+
+
         const outputPixels = new Uint8Array(this.outputPixelCount * 4)
 
 
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+
 
         const pixelBuffer = this.pixelBuffer;
 
