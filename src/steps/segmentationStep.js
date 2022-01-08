@@ -45,17 +45,7 @@ class SegmentationStep extends Step{
 
         const gl = this.gl;
 
-        const texture = gl.createTexture()
-        gl.bindTexture(gl.TEXTURE_2D, texture)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-        gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RG32F, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
-
-
-        this.tensorFlowTexture = texture;
-      //  this.tensorFlowTexture = this.createTexture(this.gl.RG32F, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
+        this.tensorFlowTexture = this.createTexture(gl.RG32F, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
 
     }
 
@@ -88,20 +78,9 @@ class SegmentationStep extends Step{
 
 
     getOutputTexture(){
-
-
-        const gl = this.gl;
-
-        const texture = gl.createTexture()
-        gl.bindTexture(gl.TEXTURE_2D, texture)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
-        gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
-
-        return texture;
+        return this.createTexture(this.gl.RGBA8, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
     }
+
 
 
 

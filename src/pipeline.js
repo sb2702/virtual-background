@@ -59,13 +59,6 @@ class Pipeline {
     async run(input){
         const resized = await this.resizeStep.run(input);
 
-
-/*
-        for (let i =0; i < resized.length; i++){
-           /// resized[i] = 0;
-        }
-*/
-
         const tflite = this.tfliteStep.run(resized);
 
         this.segmentationStep.run(tflite);
