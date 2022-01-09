@@ -68,7 +68,8 @@
     }
 
 
-    run();
+    if(BackgroundFilter.isSupported())  run();
+    else alert("Background Filter is not supported on this browser");
 
 
 

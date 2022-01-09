@@ -184,6 +184,12 @@ class VirtualBackgroundFilter {
 
         delete this.worker;
 
+        delete this;
+
+    }
+
+    static isSupported(){
+        return (typeof HTMLCanvasElement.prototype.transferControlToOffscreen === "function")
     }
 
 
