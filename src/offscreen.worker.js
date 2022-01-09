@@ -24,6 +24,10 @@ class VirtualBackgroundWebWorker {
 
     }
 
+    destroy(){
+        this.pipeline.destroy();
+    }
+
     changeBackground(background){
         this.pipeline.changeBackground(background);
     }
@@ -49,6 +53,11 @@ self.onmessage =async function (e) {
 
         case "change-background":
             self.vbWorker.changeBackground(e.data.background);
+            break;
+
+        case "destroy":
+            self.vbWorker.destroy();
+            postMessage({msg: 'destroyed'});
             break;
     }
 

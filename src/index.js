@@ -10,6 +10,7 @@ class VirtualBackgroundFilter {
         const renderSize = this.getVideoDimensions(input);
 
 
+        this.ended = false;
         this.renderCanvas = this.createCanvas(renderSize);
         this.renderContext = this.renderCanvas.getContext('bitmaprenderer');
         this.frameRate = params.frameRate || 20;
@@ -23,7 +24,10 @@ class VirtualBackgroundFilter {
     async createWorker(params, size) {
 
         const worker = new VirtualBackgroundWorker();
-        const offScreenCanvas = this.createCanvas(size).transferControlToOffscreen();
+        const originalCanvas = this.createCanvas(size);
+
+        const offScreenCanvas = originalCanvas.transferControlToOffscreen();
+        this.originalCanvas =originalCanvas;
 
         const background = await createImageBitmap(params.background);
 
@@ -116,6 +120,7 @@ class VirtualBackgroundFilter {
 
     async render(){
 
+        if(this.ended) return;
         const source = this.video;
 
         const bitmap = await createImageBitmap(source);
@@ -142,7 +147,9 @@ class VirtualBackgroundFilter {
 
         this.initRenderLoop();
 
-        return this.renderCanvas.captureStream();
+        this.outStream = this.renderCanvas.captureStream();
+
+        return this.outStream;
     }
 
 
@@ -159,6 +166,24 @@ class VirtualBackgroundFilter {
         }
 
         return {width, height}
+    }
+
+
+    async destroy(){
+
+        this.ended  = true;
+
+        this.outStream.getTracks().forEach((track)=> track.stop());
+        this.renderCanvas.remove();
+        this.video.remove();
+        this.originalCanvas.remove();
+
+        const worker = this.worker;
+
+        worker.terminate();
+
+        delete this.worker;
+
     }
 
 

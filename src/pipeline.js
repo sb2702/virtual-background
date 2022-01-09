@@ -75,6 +75,10 @@ class Pipeline {
 
     }
 
+    destroy(){
+        this.canvas.remove();
+    }
+
 
     captureStream(){
         return this.canvas.captureStream();

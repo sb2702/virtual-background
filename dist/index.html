@@ -37,6 +37,8 @@
 </div>
 
 
+<button onclick="destroy()">Destroy Filter</button>
+
 <script>
 
 
@@ -56,7 +58,13 @@
 
 
     window.changeBackground = function (background){
-        window.filter.changeBackground(background);
+        if (window.filter) window.filter.changeBackground(background);
+    }
+
+
+    window.destroy = function (){
+        window.filter.destroy();
+        delete window.filter;
     }
 
 
