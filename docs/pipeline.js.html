@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pipeline.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pipeline.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>
+import ResizeStep from './steps/resizeStep'
+import TFLiteStep  from './steps/tfliteStep'
+import SegmentationStep from "./steps/segmentationStep";
+import BilateralStep from  './steps/bilteralStep'
+import BackgroundImageStep from "./steps/backgroundImageStep";
+import BackgroundBlurStep from "./steps/backgroundBlurStep";
+
+/** The main class for handling all pipeline stages */
+class Pipeline {
+
+
+    /**
+     * @description Initialize the pipeline
+     *
+     * @param {object} params
+     * @param {string | HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData } [params.background]  -
+     * For Virtual Background Images, provide  any type of Image source supported by [createImageBitmap](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap)
+     * &lt;br/>To disable backgrounds without changing the stream, set the background to "none"
+     * @param {HTMLCanvasElement} [params.offscreenCanvas] - The OffscreenCanvas used for processing. This needs to be sent from the main thread on initialization
+     * @param {number} [params.width] - Width used for rendering the virtual background. Defaults to the MediaStreamTrack width
+     * @param {number} [params.height] - Height used for rendering the virtual background. Defaults to the MediaStreamTrack height
+
+     */
+    constructor(params) {
+
+        params.segmentationWidth = TFLiteStep.segmentationWidth;
+        params.segmentationHeight = TFLiteStep.segmentationHeight;
+
+        this.params = params;
+        this.background = params.background;
+
+        this.initializeCanvas(params.offScreenCanvas);
+
+    }
+
+/**
+ * @description Initialize all the steps, and run setup (which may be async for one or more steps, particularly the TFLite Step
+ **/
+    async setup(){
+
+        this.resizeStep = new ResizeStep(this.context, this.params);
+        this.tfliteStep = new TFLiteStep(this.context, this.params);
+        this.segmentationStep = new SegmentationStep(this.context, this.params);
+        this.bilateralStep = new BilateralStep(this.context, this.params);
+        this.backgroundImageStep = new BackgroundImageStep(this.context, this.params);
+
+        this.resizeStep.setup();
+        await this.tfliteStep.setup();       // TFLite Setup is asynchronous
+        this.segmentationStep.setup();
+        this.bilateralStep.setup();
+        this.backgroundImageStep.setup();
+
+
+    }
+
+    /**
+     * @description Get the WebGL 2D context. In reality, you should check for WebGL2 support and/or handle for errors if WebGL 2 isn't supported
+     **/
+    initializeCanvas(canvas){
+
+        this.canvas  = canvas;
+
+        this.context = canvas.getContext('webgl2');
+
+    }
+
+    /**
+     * @description Get the WebGL 2D context. In reality, you should check for WebGL2 support and/or handle for errors if WebGL 2 isn't supported
+     * @param {ImageBitmap} [input] - The input frame, sent from the user's video stream from the main thread
+     * @return {ImageBitmap} The processed frame, with the virtual background inserted
+     **/
+    async run(input){
+
+        if(this.background ===  'none') return input;
+
+        const resized = await this.resizeStep.run(input);
+
+        const tflite = this.tfliteStep.run(resized);
+
+        this.segmentationStep.run(tflite);
+
+        this.bilateralStep.run(this.resizeStep.inputTexture, this.segmentationStep.outTexture);
+
+        this.backgroundImageStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
+
+        return this.canvas.transferToImageBitmap();
+
+    }
+
+    /**
+     * @description Change the background
+     * @param {string | HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData } [background]  -
+     * For Virtual Background Images, provide  any type of Image source supported by [createImageBitmap](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap)
+     * &lt;br/>To disable backgrounds without changing the stream, set the background to "none"
+     */
+
+    changeBackground(background){
+
+        this.background = background;
+
+        if(background instanceof ImageBitmap)  this.backgroundImageStep.setBackgroundImage(background);
+
+
+    }
+
+
+
+}
+
+export default Pipeline;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Pipeline.html">Pipeline</a></li><li><a href="Step.html">Step</a></li><li><a href="TFLiteStep.html">TFLiteStep</a></li><li><a href="VirtualBackgroundFilter.html">VirtualBackgroundFilter</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Jan 08 2022 19:43:10 GMT-0800 (Pacific Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 {
-  "name": "open-source-virtual-background-filter",
+  "name": "virtual-background-filter",
   "version": "0.0.1",
   "description": "An open source virtual background filter, for adding Virtual Backgrounds and Background Blur into WebRTC streams",
   "main": "src/index.js",
