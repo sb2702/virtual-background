@@ -24,6 +24,10 @@ class VirtualBackgroundWebWorker {
 
     }
 
+    changeBackground(background){
+        this.pipeline.changeBackground(background);
+    }
+
 
 
 }
@@ -43,6 +47,9 @@ self.onmessage =async function (e) {
             postMessage({msg: 'rendered', bitmap: renderedBitmap}, [renderedBitmap]);
             break;
 
+        case "change-background":
+            self.vbWorker.changeBackground(e.data.background);
+            break;
     }
 
 }

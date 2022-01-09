@@ -12,6 +12,7 @@ class VirtualBackgroundFilter {
 
         this.renderCanvas = this.createCanvas(renderSize);
         this.renderContext = this.renderCanvas.getContext('bitmaprenderer');
+        this.frameRate = params.frameRate || 20;
 
 
         this.initialized = this.createWorker(params, renderSize);
@@ -69,12 +70,14 @@ class VirtualBackgroundFilter {
 
         video.style.display = "none";
 
+        this.video = video;
+
         const ctx = this.renderContext;
 
         const filter = this;
 
-        if(video.readyState < 1) video.oncanplay = ()=> {filter.render(video)};
-        else filter.render(video);
+        if(video.readyState < 1) video.oncanplay = ()=> {filter.render()};
+        else filter.render();
 
 
 
@@ -84,9 +87,10 @@ class VirtualBackgroundFilter {
             switch (e.data.msg){
 
                 case "rendered":
+                    filter.lastRenderTime = Date.now();
                     ctx.transferFromImageBitmap(e.data.bitmap);
                     e.data.bitmap.close();
-                    filter.render(video);
+                    filter.scheduleNextRender();
                     break;
 
 
@@ -98,7 +102,21 @@ class VirtualBackgroundFilter {
 
     }
 
-    async render(source){
+    scheduleNextRender(){
+
+        let debounceTime = Math.round(1000/this.frameRate) - (Date.now() - this.lastRenderTime);
+        const filter = this;
+
+        if(debounceTime > 0) setTimeout(function (){
+            filter.render();
+        }, debounceTime);
+        else filter.render();
+
+    }
+
+    async render(){
+
+        const source = this.video;
 
         const bitmap = await createImageBitmap(source);
         this.worker.postMessage({msg: 'render',bitmap}, [bitmap]);
@@ -106,6 +124,16 @@ class VirtualBackgroundFilter {
 
     }
 
+    async changeBackground(background){
+
+        if(background === 'none') return this.worker.postMessage({msg: 'change-background', background});
+
+        background = await createImageBitmap(background);
+
+        return this.worker.postMessage({msg: 'change-background', background}, [background]);
+
+
+    }
 
 
     async getOutput(){

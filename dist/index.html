@@ -20,15 +20,16 @@
         const filter = new BackgroundFilter(stream, {background: document.getElementById('background')});
         const outputStream =  await filter.getOutput();
 
+        window.filter = filter;
+
 
         document.getElementById('inVideo').srcObject = stream;
         document.getElementById('outVideo').srcObject = outputStream;
     }
 
 
-    window.changeBackground = function (img){
-        console.log("Changing background");
-        console.log(img);
+    window.changeBackground = function (background){
+        window.filter.changeBackground(background);
     }
 
 

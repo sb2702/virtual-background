@@ -14,6 +14,7 @@ class Pipeline {
         params.segmentationHeight = TFLiteStep.segmentationHeight;
 
         this.params = params;
+        this.background = params.background;
 
         this.initializeCanvas(params.offScreenCanvas);
 
@@ -49,6 +50,8 @@ class Pipeline {
 
     async run(input){
 
+        if(this.background ===  'none') return input;
+
         const resized = await this.resizeStep.run(input);
 
         const tflite = this.tfliteStep.run(resized);
@@ -59,8 +62,16 @@ class Pipeline {
 
         this.backgroundImageStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
 
-
         return this.canvas.transferToImageBitmap();
+
+    }
+
+    changeBackground(background){
+
+        this.background = background;
+
+        if(background instanceof ImageBitmap)  this.backgroundImageStep.setBackgroundImage(background);
+
 
     }
 
