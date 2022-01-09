@@ -1,9 +1,25 @@
 import VirtualBackgroundWorker from "worker-loader!./offscreen.worker.js";
 
+
+/** The primary interface for creating virtual Background filters. */
 class VirtualBackgroundFilter {
 
-
+    /**
+     * @description BackgroundFilter initialization
+     *
+     * @param {MediaStream} input Input to the BackgroundFilter; A MediaStream object from getUserMedia
+     * @param {object} params
+     * @param {string | HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData } [params.background]  -
+     * For Virtual Background Images, provide  any type of Image source supported by [createImageBitmap](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap)
+     * <br/>To disable backgrounds without changing the stream, set the background to "none"
+     * @param {number} [params.frameRate=20] - Framerate used for running the virtual background filter
+     * @param {number} [params.width] - Width used for rendering the virtual background. Defaults to the MediaStreamTrack width
+     * @param {number} [params.height] - Height used for rendering the virtual background. Defaults to the MediaStreamTrack height
+     */
     constructor(input, params) {
+
+
+
 
         this.input = input;
 
@@ -20,6 +36,21 @@ class VirtualBackgroundFilter {
 
     }
 
+
+    /**
+     * @description Worker initializalization
+     *
+     * @param {object} params
+     * @param {string | HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData } [params.background]  -
+     * For Virtual Background Images, provide  any type of Image source supported by [createImageBitmap](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap)
+     * <br/>To disable backgrounds without changing the stream, set the background to "none"
+     * @param {number} [params.frameRate=20] - Framerate used for running the virtual background filter
+     * @param {object} size
+     * @param {number} [size.width] - Width used for rendering the virtual background. Defaults to the MediaStreamTrack width
+     * @param {number} [size.height] - Height used for rendering the virtual background. Defaults to the MediaStreamTrack height
+     * @inner
+     *
+     */
 
     async createWorker(params, size) {
 
@@ -49,8 +80,17 @@ class VirtualBackgroundFilter {
     }
 
 
-    
-    
+
+    /**
+     * @description Utility function for creating new Canvases (both the rendering canvas and the offscreen canvas)
+     *
+     * @param {object} size
+     * @param {number} [size.width] - Width used for rendering the virtual background. Defaults to the MediaStreamTrack width
+     * @param {number} [size.height] - Height used for rendering the virtual background. Defaults to the MediaStreamTrack height
+     * @inner
+     *
+     */
+
     createCanvas(size){
 
         const newCanvas = document.createElement('canvas');
@@ -65,6 +105,10 @@ class VirtualBackgroundFilter {
     }
 
 
+    /**
+     * @description Initiate the render loop by sending a "render" message to the worker. When a "Rendered" message is recieved, the returned bitmap is rendered onto the main-thread rendering canvas and the next render step is scheduled
+     * @inner
+     */
     initRenderLoop(){
 
         const video = document.createElement('video');
@@ -82,9 +126,6 @@ class VirtualBackgroundFilter {
 
         if(video.readyState < 1) video.oncanplay = ()=> {filter.render()};
         else filter.render();
-
-
-
 
         this.worker.addEventListener('message', function (e){
 
@@ -106,6 +147,10 @@ class VirtualBackgroundFilter {
 
     }
 
+    /**
+     * @description Internal method for scheduling the next render, throttling the render rate to the specified framerate, as specified in the initial params. If the render cycle is not throttled, it could lead to arbitrarily high framerates (100+), causing high cpu usage and poor performance.
+     * @inner
+     */
     scheduleNextRender(){
 
         let debounceTime = Math.round(1000/this.frameRate) - (Date.now() - this.lastRenderTime);
@@ -118,6 +163,12 @@ class VirtualBackgroundFilter {
 
     }
 
+
+    /**
+     * @description Internal method for the render step. It takes an image bitmap from the current video source, and sends it to the worker via the render command.
+     * @inner
+     */
+
     async render(){
 
         if(this.ended) return;
@@ -128,6 +179,13 @@ class VirtualBackgroundFilter {
         bitmap.close();
 
     }
+
+    /**
+     * @description Change the background
+     * @param {string | HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData } [background]  -
+     * For Virtual Background Images, provide  any type of Image source supported by [createImageBitmap](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap)
+     * <br/>To disable backgrounds without changing the stream, set the background to "none"
+     */
 
     async changeBackground(background){
 
@@ -141,6 +199,10 @@ class VirtualBackgroundFilter {
     }
 
 
+    /**
+     * @description Get the filtered output video stream, as a MediaStream
+     * @return MediaStream
+     */
     async getOutput(){
 
         await this.initialized;
@@ -153,6 +215,11 @@ class VirtualBackgroundFilter {
     }
 
 
+    /**
+     * @description Internal method for calculating the dimensions to be used for processing the video stream. Defaults to the videoTrack settings from the input
+     * @param {MediaStream} [input] - the Input MediaStream from getUserMedia
+     * @inner
+     */
 
     getVideoDimensions(input){
         let width = 640;
@@ -169,6 +236,10 @@ class VirtualBackgroundFilter {
     }
 
 
+
+    /**
+     * @description Shuts down the output MediaStream, stops all processing, terminates the worker and removes all unused resources
+     */
     async destroy(){
 
         this.ended  = true;

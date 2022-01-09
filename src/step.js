@@ -1,6 +1,6 @@
 
 
-
+/** The parent class for each Step of the pipeline, automating a lot of the WebGL stuff. */
 class Step {
 
     constructor(context, params={}) {
@@ -11,23 +11,35 @@ class Step {
 
     }
 
+    /**
+     * @description Create and Link Programs, and set the output framebuffer
+     */
 
     setup(){
         this.program = this.createProgram();
         this.outBuffer = this.setupOutput();
     }
 
+    /**
+     * @description Set the Output viewport heigt/weidth and set the output framebuffer
+     */
     setOutput(){
         const gl = this.gl;
         gl.viewport(0, 0, this.width, this.height);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
+    /**
+     * @description Utility function to set the format of the texture used for the output
+     */
     getOutputTexture(){
         return this.createTexture(this.gl.RGB8, this.params.width, this.params.height);
     }
 
 
+    /**
+     * @description Basic code to run the program encapsulated by this step
+     */
     run(input){
 
         const gl = this.gl;
@@ -40,6 +52,10 @@ class Step {
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     }
 
+
+    /**
+     * @description Create the framebuffer and texture to store the output of this step
+     */
     setupOutput(){
 
         const gl = this.gl;
@@ -58,6 +74,11 @@ class Step {
     setInput(){
 
     }
+
+
+    /**
+     * @description Default Fragment shader - returns the input
+     */
 
     getFragmentShader(){
 
@@ -82,7 +103,9 @@ class Step {
 
     }
 
-
+    /**
+     * @description Default Vertex shader (processed the whole frame)
+     */
     getVertexShader(){
 
         const vertexShaderSource = String.raw`#version 300 es
@@ -103,6 +126,9 @@ class Step {
 
     }
 
+    /**
+     * @description Utility fn  create a WebGL shader
+     */
 
     createShader(type, source){
 
@@ -116,7 +142,9 @@ class Step {
 
     }
 
-
+    /**
+     * @description Utility function to create a program with default values for the vertex shader
+     */
     createProgram(){
 
 
@@ -159,6 +187,9 @@ class Step {
 
     }
 
+    /**
+     * @description Utility function to create a WebGL texture
+     */
 
     createTexture(internalFormat, width, height){
 

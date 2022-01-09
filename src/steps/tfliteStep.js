@@ -3,7 +3,7 @@ import createTFLiteSIMDModule from '../tflite/tflite-simd.js'
 import createTFLiteModule from '../tflite/tflite.js'
 const model =  require('binary-loader!../tflite/segm_lite_v681.tflite');
 
-
+/** The TFLite Step handles execution of the TF Lite module */
 
 class TFLiteStep extends Step{
 
@@ -15,6 +15,8 @@ class TFLiteStep extends Step{
 
     }
 
+
+    /** The TFLite setup relies on the model and WASM files being loaded directly from memory in Webpack, so nothing is being loaded at runtime over the network */
     async setup(){
 
         const tflite = await createTFLiteSIMDModule();
@@ -35,6 +37,7 @@ class TFLiteStep extends Step{
     }
 
 
+    /** This code comes straight from the [Volcomix repo](https://github.com/Volcomix/virtual-background)  */
     run(inputPixels) {
 
         const tflite = this.tflite;

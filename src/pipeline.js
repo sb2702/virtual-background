@@ -6,8 +6,22 @@ import BilateralStep from  './steps/bilteralStep'
 import BackgroundImageStep from "./steps/backgroundImageStep";
 import BackgroundBlurStep from "./steps/backgroundBlurStep";
 
+/** The main class for handling all pipeline stages */
 class Pipeline {
 
+
+    /**
+     * @description Initialize the pipeline
+     *
+     * @param {object} params
+     * @param {string | HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData } [params.background]  -
+     * For Virtual Background Images, provide  any type of Image source supported by [createImageBitmap](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap)
+     * <br/>To disable backgrounds without changing the stream, set the background to "none"
+     * @param {HTMLCanvasElement} [params.offscreenCanvas] - The OffscreenCanvas used for processing. This needs to be sent from the main thread on initialization
+     * @param {number} [params.width] - Width used for rendering the virtual background. Defaults to the MediaStreamTrack width
+     * @param {number} [params.height] - Height used for rendering the virtual background. Defaults to the MediaStreamTrack height
+
+     */
     constructor(params) {
 
         params.segmentationWidth = TFLiteStep.segmentationWidth;
@@ -20,7 +34,9 @@ class Pipeline {
 
     }
 
-
+/**
+ * @description Initialize all the steps, and run setup (which may be async for one or more steps, particularly the TFLite Step
+ **/
     async setup(){
 
         this.resizeStep = new ResizeStep(this.context, this.params);
@@ -38,7 +54,9 @@ class Pipeline {
 
     }
 
-
+    /**
+     * @description Get the WebGL 2D context. In reality, you should check for WebGL2 support and/or handle for errors if WebGL 2 isn't supported
+     **/
     initializeCanvas(canvas){
 
         this.canvas  = canvas;
@@ -47,7 +65,11 @@ class Pipeline {
 
     }
 
-
+    /**
+     * @description Get the WebGL 2D context. In reality, you should check for WebGL2 support and/or handle for errors if WebGL 2 isn't supported
+     * @param {ImageBitmap} [input] - The input frame, sent from the user's video stream from the main thread
+     * @return {ImageBitmap} The processed frame, with the virtual background inserted
+     **/
     async run(input){
 
         if(this.background ===  'none') return input;
@@ -66,6 +88,13 @@ class Pipeline {
 
     }
 
+    /**
+     * @description Change the background
+     * @param {string | HTMLImageElement | HTMLCanvasElement | ImageBitmap | ImageData } [background]  -
+     * For Virtual Background Images, provide  any type of Image source supported by [createImageBitmap](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/createImageBitmap)
+     * <br/>To disable backgrounds without changing the stream, set the background to "none"
+     */
+
     changeBackground(background){
 
         this.background = background;
@@ -75,14 +104,7 @@ class Pipeline {
 
     }
 
-    destroy(){
-        this.canvas.remove();
-    }
 
-
-    captureStream(){
-        return this.canvas.captureStream();
-    }
 
 }
 
