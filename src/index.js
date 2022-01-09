@@ -28,7 +28,16 @@ class VirtualBackgroundFilter {
 
         worker.postMessage({msg: 'init', offScreenCanvas, background, width: size.width, height: size.height}, [offScreenCanvas]);
 
+        await new Promise(function (resolve) {
+            worker.addEventListener('message', function (e){
+                if(e.data.msg === "initialized"){
+                    resolve();
+                }
+            });
+        });
+
         this.worker = worker;
+
 
         return true;
 
@@ -43,8 +52,8 @@ class VirtualBackgroundFilter {
         newCanvas.height = size.height;
         newCanvas.width = size.width;
         
-      //  newCanvas.style.display = "none";
-        
+        newCanvas.style.display = "none";
+        newCanvas.style.background = "black";
         document.body.appendChild(newCanvas);
 
         return newCanvas
@@ -75,8 +84,6 @@ class VirtualBackgroundFilter {
             switch (e.data.msg){
 
                 case "rendered":
-                    console.log("In rendered");
-
                     ctx.transferFromImageBitmap(e.data.bitmap);
                     e.data.bitmap.close();
                     filter.render(video);
@@ -94,10 +101,6 @@ class VirtualBackgroundFilter {
     async render(source){
 
         const bitmap = await createImageBitmap(source);
-
-        console.log("Bitmap");
-        console.log(bitmap);
-        console.log(this.worker);
         this.worker.postMessage({msg: 'render',bitmap}, [bitmap]);
         bitmap.close();
 
@@ -107,11 +110,7 @@ class VirtualBackgroundFilter {
 
     async getOutput(){
 
-        console.log("Getting output");
-
         await this.initialized;
-
-        console.log("Startint render loop");
 
         this.initRenderLoop();
 

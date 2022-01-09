@@ -15,9 +15,8 @@ class Pipeline {
 
         this.params = params;
 
-        this.initializeCanvas(params.canvas);
+        this.initializeCanvas(params.offScreenCanvas);
 
-        this.initialized = this.setup();
     }
 
 
@@ -27,19 +26,13 @@ class Pipeline {
         this.tfliteStep = new TFLiteStep(this.context, this.params);
         this.segmentationStep = new SegmentationStep(this.context, this.params);
         this.bilateralStep = new BilateralStep(this.context, this.params);
-
         this.backgroundImageStep = new BackgroundImageStep(this.context, this.params);
-        this.backgroundBlurStep = new BackgroundBlurStep(this.context, this.params);
 
-        // Setup might be asynchronous
-        await Promise.all([
-            this.resizeStep.setup(),
-            this.tfliteStep.setup(),
-            this.segmentationStep.setup(),
-            this.bilateralStep.setup(),
-            this.backgroundImageStep.setup(),
-            this.backgroundBlurStep.setup()
-        ])
+        this.resizeStep.setup();
+        await this.tfliteStep.setup();       // TFLite Setup is asynchronous
+        this.segmentationStep.setup();
+        this.bilateralStep.setup();
+        this.backgroundImageStep.setup();
 
 
     }
@@ -49,14 +42,13 @@ class Pipeline {
 
         this.canvas  = canvas;
 
-        canvas.style.background = "black";
-
         this.context = canvas.getContext('webgl2');
 
     }
 
 
     async run(input){
+
         const resized = await this.resizeStep.run(input);
 
         const tflite = this.tfliteStep.run(resized);
@@ -65,11 +57,8 @@ class Pipeline {
 
         this.bilateralStep.run(this.resizeStep.inputTexture, this.segmentationStep.outTexture);
 
-        if(this.params.background === 'blur') {
-            this.backgroundBlurStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
-        } else {
-            this.backgroundImageStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
-        }
+        this.backgroundImageStep.run(this.resizeStep.inputTexture, this.bilateralStep.outTexture);
+
 
         return this.canvas.transferToImageBitmap();
 

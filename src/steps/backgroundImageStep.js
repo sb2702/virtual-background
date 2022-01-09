@@ -66,7 +66,7 @@ class BackgroundImageStep extends Step{
     }
 
 
-    async setup(){
+    setup(){
 
 
         const program = this.createProgram();
@@ -97,12 +97,9 @@ class BackgroundImageStep extends Step{
 
         this.program = program;
 
-        if(this.params.background !== 'blur'){
+        if(this.params.background instanceof ImageBitmap){
 
             const backgroundImage = this.params.background;
-
-            if(!backgroundImage.complete) await new Promise((resolve)=>  backgroundImage.onload = resolve);
-
             this.setBackgroundImage(backgroundImage);
 
         }
