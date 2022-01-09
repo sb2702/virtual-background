@@ -9,9 +9,12 @@ class VirtualBackgroundFilter {
 
         const renderSize = this.getVideoDimensions(input);
 
-        this.worker = this.createWorker(params, renderSize);
+
         this.renderCanvas = this.createCanvas(renderSize);
         this.renderContext = this.renderCanvas.getContext('bitmaprenderer');
+
+
+        this.initialized = this.createWorker(params, renderSize);
 
     }
 
@@ -25,6 +28,10 @@ class VirtualBackgroundFilter {
 
         worker.postMessage({msg: 'init', offScreenCanvas, background, width: size.width, height: size.height}, [offScreenCanvas]);
 
+        this.worker = worker;
+
+        return true;
+
     }
 
 
@@ -36,7 +43,7 @@ class VirtualBackgroundFilter {
         newCanvas.height = size.height;
         newCanvas.width = size.width;
         
-        newCanvas.style.display = "none";
+      //  newCanvas.style.display = "none";
         
         document.body.appendChild(newCanvas);
 
@@ -55,7 +62,12 @@ class VirtualBackgroundFilter {
 
         const ctx = this.renderContext;
 
-        const render = this.render;
+        const filter = this;
+
+        if(video.readyState < 1) video.oncanplay = ()=> {filter.render(video)};
+        else filter.render(video);
+
+
 
 
         this.worker.addEventListener('message', function (e){
@@ -63,9 +75,11 @@ class VirtualBackgroundFilter {
             switch (e.data.msg){
 
                 case "rendered":
+                    console.log("In rendered");
+
                     ctx.transferFromImageBitmap(e.data.bitmap);
                     e.data.bitmap.close();
-                    render(video);
+                    filter.render(video);
                     break;
 
 
@@ -73,11 +87,17 @@ class VirtualBackgroundFilter {
 
         });
 
+
+
     }
 
     async render(source){
 
         const bitmap = await createImageBitmap(source);
+
+        console.log("Bitmap");
+        console.log(bitmap);
+        console.log(this.worker);
         this.worker.postMessage({msg: 'render',bitmap}, [bitmap]);
         bitmap.close();
 
@@ -86,6 +106,12 @@ class VirtualBackgroundFilter {
 
 
     async getOutput(){
+
+        console.log("Getting output");
+
+        await this.initialized;
+
+        console.log("Startint render loop");
 
         this.initRenderLoop();
 
