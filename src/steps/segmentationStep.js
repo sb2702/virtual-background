@@ -23,10 +23,10 @@ class SegmentationStep extends Step{
                 out vec4 outColor;
             
                 void main() {
-                  vec2 segmentation = texture(u_inputSegmentation, v_texCoord).rg;
+                  float segmentation = texture(u_inputSegmentation, v_texCoord).r;
 ;
                  
-                  outColor = vec4(vec3(0.0), segmentation.r);
+                  outColor = vec4(vec3(0.0), segmentation);
                 }
         `;
 
@@ -42,7 +42,7 @@ class SegmentationStep extends Step{
 
         const gl = this.gl;
 
-        this.tensorFlowTexture = this.createTexture(gl.RG32F, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
+        this.tensorFlowTexture = this.createTexture(gl.R32F, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight);
 
     }
 
@@ -67,7 +67,7 @@ class SegmentationStep extends Step{
 
         gl.activeTexture(gl.TEXTURE1)
         gl.bindTexture(gl.TEXTURE_2D, this.tensorFlowTexture)
-        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight, gl.RG, gl.FLOAT, tflite.HEAPF32, tfliteOutputMemoryOffset);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, TFLiteStep.segmentationWidth, TFLiteStep.segmentationHeight, gl.RED, gl.FLOAT, tflite.HEAPF32, tfliteOutputMemoryOffset);
     }
 
 
