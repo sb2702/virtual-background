@@ -24,12 +24,9 @@ class SegmentationStep extends Step{
             
                 void main() {
                   vec2 segmentation = texture(u_inputSegmentation, v_texCoord).rg;
-                  float shift = max(segmentation.r, segmentation.g);
-                  float backgroundExp = exp(segmentation.r - shift);
-                  float personExp = exp(segmentation.g - shift);
-                  
-                  float segOut = personExp / (backgroundExp + personExp);
-                  outColor = vec4(vec3(0.0), segOut);
+;
+                 
+                  outColor = vec4(vec3(0.0), segmentation.r);
                 }
         `;
 

@@ -76,7 +76,20 @@ class Pipeline {
 
         const resized = await this.resizeStep.run(input);
 
-        const tflite = this.tfliteStep.run(resized);
+
+        const properResized = new Uint8Array(144*256*3);
+
+        for(let i=0; i< 144*256; i++){
+
+            properResized[i*3] = resized[i*4];
+            properResized[i*3+1] = resized[i*4+1];
+            properResized[i*3+2] = resized[i*4+2];
+
+
+        }
+
+
+        const tflite = this.tfliteStep.run(properResized);
 
         this.segmentationStep.run(tflite);
 

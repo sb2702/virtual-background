@@ -1,14 +1,14 @@
 import Step from '../step'
 import createTFLiteSIMDModule from '../tflite/tflite-simd.js'
 import createTFLiteModule from '../tflite/tflite.js'
-const model =  require('binary-loader!../tflite/segm_lite_v681.tflite');
+const model =  require('binary-loader!../tflite/selfie_segmentation_landscape.tflite');
 
 /** The TFLite Step handles execution of the TF Lite module */
 
 class TFLiteStep extends Step{
 
-    static segmentationWidth = 160;
-    static segmentationHeight = 96;
+    static segmentationWidth = 256;
+    static segmentationHeight = 144;
 
     constructor(context, params) {
         super(context, params);
@@ -28,10 +28,16 @@ class TFLiteStep extends Step{
 
         const modelBufferOffset = tflite._getModelBufferMemoryOffset();
 
+        console.log(modelBufferOffset)
+
+
+        console.log("Loading model");
         tflite.HEAPU8.set(modelArrayBuffer, modelBufferOffset);
 
         tflite._loadModel(modelArrayBuffer.byteLength);
 
+
+        console.log("Loaded model");
         this.tflite = tflite;
 
     }
@@ -45,7 +51,7 @@ class TFLiteStep extends Step{
         const tfliteInputMemoryOffset = tflite._getInputMemoryOffset() / 4;
 
         for (let i = 0; i < TFLiteStep.segmentationWidth*TFLiteStep.segmentationHeight; i++) {
-            const outputIndex = i * 4;
+            const outputIndex = i * 3;
             const tfliteIndex = tfliteInputMemoryOffset + i * 3;
             tflite.HEAPF32[tfliteIndex] = inputPixels[outputIndex] / 255
             tflite.HEAPF32[tfliteIndex + 1] = inputPixels[outputIndex + 1] / 255
