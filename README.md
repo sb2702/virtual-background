@@ -58,6 +58,7 @@ As seen in the [docs](docs), there are several other API methods and parameters 
 * Lots of event and error handling
 
 
-## Use and Sharing
-Please do not publicaly share this repository, or any information which may disclose the identify of the author publically. Please do not upload this as a public repo on Github
+### Source Code
+
+I developed this code on my own personal device, adapting code from [this repository](https://github.com/Volcomix/virtual-background), but making any modifications independently, on my own, in my own  personal capacity. 
 
