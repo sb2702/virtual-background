@@ -60,5 +60,5 @@ As seen in the [docs](docs), there are several other API methods and parameters 
 
 ### Source Code
 
-I developed this code on my own personal device, adapting code from [this repository](https://github.com/Volcomix/virtual-background), but making any modifications independently, on my own, in my own  personal capacity. 
+I developed this code on my own personal device, adapting code from [this repository](https://github.com/Volcomix/virtual-background), but making any modifications independently, on my own, in my own  personal capacity. I am releasing this code under the [MIT License)(LICENSE.md)
 
